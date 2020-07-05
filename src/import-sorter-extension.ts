@@ -47,14 +47,10 @@ export class VSCodeConfigurationProvider implements ConfigurationProvider {
       generalConfig.configurationFilePath !==
         defaultGeneralConfiguration.configurationFilePath
     ) {
-      console.error(
-        "configurationFilePath is not found by the following path, import sorter will proceed with defaults from settings",
-        configPath
+      workspace.showMessage(
+        `configurationFilePath is not found by the following path: '${configPath}', import sorter will proceed with defaults from settings\n`,
+        "warning"
       );
-      const statusItem = workspace.createStatusBarItem();
-      statusItem.text =
-        "configurationFilePath is not found by the following path, import sorter will proceed with defaults from settings";
-      statusItem.show();
     }
 
     const fileConfigurationString = isConfigExist
@@ -139,28 +135,30 @@ export class ImportSorterExtension {
     return this.sortActiveDocumentImports();
   }
 
-  public sortImportsInDirectories(path: string): Thenable<void> {
+  public async sortImportsInDirectories(path: string): Promise<void> {
     this.configurationProvider.resetConfiguration();
     const sortImports$ = this.importRunner.sortImportsInDirectory(path);
     const statusItem = workspace.createStatusBarItem();
     statusItem.text = "Import sorter: sorting...";
     statusItem.isProgress = true;
     statusItem.show();
-    return sortImports$
-      .pipe(
-        mapObservable((_) => 1),
-        scan((acc, curr) => acc + curr, 0),
-        mapObservable(
-          (fileCount) => (statusItem.text = `${fileCount} - sorted`)
-        ),
-        delay(1000)
-      )
-      .toPromise()
-      .then(() => {
-        // @TODO do this with rxjs instead
-        statusItem.text = `done.`;
-        setTimeout(statusItem.hide, 1000);
-      });
+    try {
+      await sortImports$
+        .pipe(
+          mapObservable((_) => 1),
+          scan((acc, curr) => acc + curr, 0),
+          mapObservable(
+            (fileCount) => (statusItem.text = `${fileCount} - sorted`)
+          ),
+          delay(1000)
+        )
+        .toPromise();
+      statusItem.text = `done.`;
+    } catch {
+      statusItem.text = `failed.`;
+    } finally {
+      setTimeout(statusItem.dispose, 1000);
+    }
   }
 
   public sortModifiedDocumentImportsFromOnBeforeSaveCommand(
@@ -216,9 +214,9 @@ export class ImportSorterExtension {
         });
       }
     } catch (error) {
-      const item = workspace.createStatusBarItem();
-      item.text = `Typescript import sorter failed with - ${error.message}. Please log a bug.`;
-      item.show();
+      workspace.showMessage(
+        `Typescript import sorter failed with - ${error.message}. Please log a bug.`
+      );
     }
   }
 
@@ -240,10 +238,10 @@ export class ImportSorterExtension {
     if (isFileExtensionErrorIgnored) {
       return false;
     }
-    const item = workspace.createStatusBarItem();
-    item.text =
-      "Import Sorter currently only supports typescript (.ts) or typescriptreact (.tsx) language files";
-    item.show();
+    workspace.showMessage(
+      "Import Sorter currently only supports typescript (.ts) or typescriptreact (.tsx) language files",
+      "error"
+    );
     return false;
   }
 }
