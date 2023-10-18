@@ -1,3 +1,7 @@
+# fork notes
+
+Same as https://github.com/VanceLongwill/import-sorter but moved dev dependencies to dependencies to fix :CocInstall
+
 # import-sorter
 
 Extension which sorts TypeScript imports according to the configuration provided. The configuration defaults follow ESLint sort-imports rules.
