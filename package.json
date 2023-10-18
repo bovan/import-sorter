@@ -48,9 +48,7 @@
     "@types/glob": "^5.0.30",
     "@types/lodash": "4.14.117",
     "@types/mocha": "^2.2.42",
-    "@types/node": "^8.10.25"
-  },
-  "devDependencies": {
+    "@types/node": "^8.10.25",
     "coc.nvim": "0.0.77",
     "expect.js": "^0.3.1",
     "mocha": "^2.3.3",
