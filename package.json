@@ -44,9 +44,7 @@
     "glob": "^7.1.2",
     "typescript": "^2.6.1",
     "lodash": "4.17.4",
-    "rxjs": "6.3.3"
-  },
-  "devDependencies": {
+    "rxjs": "6.3.3",
     "@types/glob": "^5.0.30",
     "@types/lodash": "4.14.117",
     "@types/mocha": "^2.2.42",
